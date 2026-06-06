@@ -47,13 +47,13 @@ function getTone(kind: ReturnType<typeof getProductKind>) {
 export default function ContactPage() {
   const { recipe } = getFactoryState()
   const productKind = getProductKind(recipe)
-  const tone = getTone(productKind)
+  const tone = getTone('directory')
 
   const lanes =
     productKind === 'directory'
       ? [
           { icon: Building2, title: 'Business onboarding', body: 'Add listings, verify operational details, and bring your business surface live quickly.' },
-          { icon: Phone, title: 'Partnership support', body: 'Talk through bulk publishing, local growth, and operational setup questions.' },
+          { icon: Phone, title: 'Partnership support', body: 'Talk through bulk listing, local growth, and directory setup questions.' },
           { icon: MapPin, title: 'Coverage requests', body: 'Need a new geography or category lane? We can shape the directory around it.' },
         ]
       : productKind === 'editorial'
@@ -76,15 +76,15 @@ export default function ContactPage() {
 
   return (
     <EditableSiteShell className={tone.shell}>
-      <main className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-[var(--editable-container)] px-4 py-14 sm:px-6 lg:px-8">
         <section className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">{pagesContent.contact.eyebrow}</p>
-            <h1 className="mt-4 text-5xl font-semibold tracking-[-0.05em]">{pagesContent.contact.title}</h1>
+            <h1 className="mt-4 text-4xl font-black leading-tight tracking-[-0.05em] sm:text-5xl">{pagesContent.contact.title}</h1>
             <p className={`mt-5 max-w-2xl text-sm leading-8 ${tone.muted}`}>{pagesContent.contact.description}</p>
             <div className="mt-8 space-y-4">
               {lanes.map((lane) => (
-                <div key={lane.title} className={`rounded-[1.6rem] p-5 ${tone.soft}`}>
+                <div key={lane.title} className={`rounded-lg p-5 ${tone.soft}`}>
                   <lane.icon className="h-5 w-5" />
                   <h2 className="mt-3 text-xl font-semibold">{lane.title}</h2>
                   <p className={`mt-2 text-sm leading-7 ${tone.muted}`}>{lane.body}</p>
@@ -93,8 +93,8 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <div className={`rounded-[2rem] p-7 ${tone.panel}`}>
-            <h2 className="text-2xl font-semibold">{pagesContent.contact.formTitle}</h2>
+          <div className={`rounded-lg p-7 shadow-sm ${tone.panel}`}>
+            <h2 className="text-2xl font-black">{pagesContent.contact.formTitle}</h2>
             <EditableContactLeadForm />
           </div>
         </section>
