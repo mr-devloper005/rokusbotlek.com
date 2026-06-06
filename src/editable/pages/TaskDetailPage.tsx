@@ -8,6 +8,7 @@ import { getTaskConfig, SITE_CONFIG, type TaskKey } from '@/lib/site-config'
 import type { SitePost } from '@/lib/site-connector'
 import { EditableSiteShell } from '@/editable/shell/EditableSiteShell'
 import { getVisualPreset, visualSystem } from '@/editable/theme/visual-system'
+import { globalContent } from '@/editable/content/global.content'
 
 export const revalidate = 3
 
@@ -157,24 +158,53 @@ function ListingDetail({ post, related }: { post: SitePost; related: SitePost[] 
   const email = getField(post, ['email'])
   const website = getField(post, ['website', 'url'])
   const mapSrc = mapSrcFor(post)
+  const category = categoryOf(post, 'Business')
+  const contactHref = email ? `mailto:${email}` : phone ? `tel:${phone}` : website || '#contact-business'
   return (
-    <section className="mx-auto max-w-[var(--editable-container)] px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+    <section className="mx-auto max-w-[var(--editable-container)] px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
       <BackLink task="listing" />
-      <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
-        <article className="rounded-[2.8rem] border border-[var(--editable-border)] bg-white p-6 shadow-[0_30px_90px_rgba(15,23,42,0.09)] sm:p-9">
-          <div className="grid gap-6 sm:grid-cols-[150px_1fr]">
-            <div className="flex h-36 w-36 items-center justify-center overflow-hidden rounded-[2rem] bg-[var(--detail-bg)] ring-1 ring-[var(--editable-border)]">
-              {logo ? <img src={logo} alt="" className="h-full w-full object-cover" /> : <Building2 className="h-14 w-14 opacity-40" />}
+      <div className="mt-6 overflow-hidden rounded-lg border border-[var(--editable-border)] bg-[#0f2747] p-3 shadow-[0_30px_90px_rgba(15,39,71,0.16)]">
+        <div className="grid gap-3 md:grid-cols-[1fr_0.7fr_1fr]">
+          {(images.length ? images : ['/placeholder.svg?height=900&width=1200']).slice(0, 3).map((image, index) => (
+            <div key={`${image}-${index}`} className={`relative overflow-hidden rounded-md bg-black/20 ${index === 1 ? 'min-h-[280px]' : 'min-h-[220px] opacity-70'}`}>
+              <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover" />
+              {index !== 1 ? <div className="absolute inset-0 bg-black/35" /> : null}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
+        <article className="overflow-hidden rounded-lg border border-[var(--editable-border)] bg-white shadow-[0_24px_70px_rgba(15,39,71,0.09)]">
+          <div className="grid gap-6 border-b border-[var(--editable-border)] p-6 sm:grid-cols-[96px_1fr_auto] sm:items-center sm:p-8">
+            <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-lg bg-[var(--detail-bg)] ring-1 ring-[var(--editable-border)]">
+              {logo ? <img src={logo} alt="" className="h-full w-full object-cover" /> : <Building2 className="h-12 w-12 opacity-40" />}
             </div>
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--detail-accent)]">Business listing</p>
-              <h1 className="mt-3 text-4xl font-black leading-[0.98] tracking-[-0.07em] sm:text-6xl">{post.title}</h1>
-              <p className="mt-5 max-w-3xl text-base leading-8 opacity-70">{summaryText(post)}</p>
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-[#2563c8]">{category}</p>
+              <h1 className="mt-2 text-3xl font-black leading-tight tracking-[-0.05em] sm:text-5xl">{post.title}</h1>
+              <div className="mt-3 flex flex-wrap items-center gap-3 text-sm font-bold text-slate-600">
+                <span className="inline-flex items-center gap-1">4.8 rating</span>
+                {address ? <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4 text-[#2563c8]" /> {address}</span> : null}
+              </div>
             </div>
+            <Link href={contactHref} id="contact-business" target={website && !email && !phone ? '_blank' : undefined} rel={website && !email && !phone ? 'noreferrer' : undefined} className="inline-flex min-h-14 items-center justify-center rounded-md bg-[#2563c8] px-6 text-sm font-black text-white">
+              Contact This Business
+            </Link>
           </div>
-          <InfoGrid items={[['Location', address, MapPin], ['Phone', phone, Phone], ['Email', email, Mail], ['Website', website, Globe2]]} />
-          <BodyContent post={post} />
-          <ImageStrip images={images.slice(1)} label="Business showcase" />
+          <div className="grid gap-0 border-b border-[var(--editable-border)] text-center sm:grid-cols-4">
+            {['Verified', 'Local service', 'Direct contact', 'Business profile'].map((item) => (
+              <div key={item} className="border-[var(--editable-border)] p-5 sm:border-r last:border-r-0">
+                <CheckCircle2 className="mx-auto h-7 w-7 text-[#2563c8]" />
+                <p className="mt-2 text-sm font-black">{item}</p>
+              </div>
+            ))}
+          </div>
+          <div className="p-6 sm:p-8">
+            
+            <InfoGrid items={[['Location', address, MapPin], ['Phone', phone, Phone], ['Email', email, Mail], ['Website', website, Globe2]]} />
+            <BodyContent post={post} />
+            <ImageStrip images={images.slice(1)} label="Business showcase" />
+          </div>
         </article>
         <aside className="space-y-5">
           {mapSrc ? <MapBox src={mapSrc} label={address || post.title} /> : <ContactAction website={website} phone={phone} email={email} />}
@@ -384,8 +414,7 @@ function RelatedPanel({ task, post, related, compact = false }: { task: TaskKey;
           <p className="text-xs font-black uppercase tracking-[0.22em] opacity-55">About this post</p>
           <div className="mt-4 grid gap-3 text-sm font-bold opacity-75">
             <p className="inline-flex items-center gap-2"><Tag className="h-4 w-4" /> Task: {taskConfig?.label || task}</p>
-            <p className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4" /> Site: {SITE_CONFIG.name}</p>
-            {post.publishedAt ? <p>Published: {new Date(post.publishedAt).toLocaleDateString()}</p> : null}
+            <p className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4" /> Site: {globalContent.site.name}</p>
           </div>
         </div>
       ) : null}
