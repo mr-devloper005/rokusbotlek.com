@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, Building2, CheckCircle2, MapPin, Search, Star } from 'lucide-react'
+import { ArrowRight, CheckCircle2, MapPin, Search, Star } from 'lucide-react'
 import type { SitePost } from '@/lib/site-connector'
 import type { HomeTimeSection } from '@/lib/task-data'
 import type { TaskKey } from '@/lib/site-config'
@@ -13,10 +13,6 @@ type HomeSectionProps = {
   primaryRoute: string
   posts: SitePost[]
   timeSections: HomeTimeSection[]
-}
-
-function taskLabel(task: TaskKey) {
-  return SITE_CONFIG.tasks.find((item) => item.key === task)?.label || task
 }
 
 function categoryOf(post: SitePost) {
