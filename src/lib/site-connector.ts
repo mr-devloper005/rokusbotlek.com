@@ -63,8 +63,21 @@ const getPublicUrl = (path: string) => {
   return `${API_BASE.replace(/\/$/, "")}/api/v1/public/${SITE_CODE}${path}`;
 };
 
+// Bounded: this used to keep every response forever (every post slug and every feed
+// variant, incl. the 1000-post sitemap/search feeds) and grew each site ~3MB/hour until
+// the V8 heap limit crashed it. Keep only the newest entries and skip very large feeds.
+const MEMORY_FALLBACK_MAX_ENTRIES = 300;
+const MEMORY_FALLBACK_MAX_FEED_LIMIT = 200;
+
 const saveMemoryFallback = (key: string, data: unknown) => {
+  const limit = Number(/[?&]limit=(\d+)/.exec(key)?.[1] ?? 0);
+  if (limit > MEMORY_FALLBACK_MAX_FEED_LIMIT) return;
+  memoryFallback.delete(key);
   memoryFallback.set(key, { data, savedAt: Date.now() });
+  if (memoryFallback.size > MEMORY_FALLBACK_MAX_ENTRIES) {
+    const oldest = memoryFallback.keys().next().value;
+    if (oldest !== undefined) memoryFallback.delete(oldest);
+  }
 };
 
 const readMemoryFallback = <T>(key: string): T | null => {
